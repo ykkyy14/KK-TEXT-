@@ -1,0 +1,27 @@
+name: 定时任务
+
+on:
+  schedule:
+    - cron: '0 0 * * *'    # UTC 00:00，即北京时间每天 08:00
+  workflow_dispatch:       # 加上这行，页面上会多一个手动触发按钮，方便测试
+
+jobs:
+  run-task:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30    # 超时上限，最大 360（6 小时）
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 执行任务
+        run: python main.py
+        env:
+          API_KEY: ${{ secrets.API_KEY }}   # 从 Secrets 注入环境变量
